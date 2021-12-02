@@ -1,6 +1,6 @@
+import random, string
 from tkinter import Frame, Tk
 from components.btn import Btn
-from components.show_label import ShowLabel
 from components.textfield import TextField
 
 
@@ -9,11 +9,18 @@ class InputField:
     ligthBgColor = "#282828"
     fgColor = "#cccccc"
 
-    def __init__(self, window: Tk, title: str):
-        self.inputFieldFrame = Frame(window, bg=InputField.darkBgColor)
-        self.inputFieldFrame.pack(anchor="n")
+    def __init__(self, window: Tk, title: str, stringSize: int):
 
-        self.textBox = TextField(window=self.inputFieldFrame, title=title)
+        self.stringSize = stringSize
+
+        self.inputFieldFrame = Frame(window, bg=InputField.darkBgColor)
+        self.inputFieldFrame.pack(anchor="nw")
+
+        self.inputField = TextField(
+            window=self.inputFieldFrame,
+            title=title,
+            marginX=(3, 0),
+        )
 
         self.generate = Btn(
             window=self.inputFieldFrame,
@@ -21,5 +28,16 @@ class InputField:
             bgColor=InputField.ligthBgColor,
             aBgColor=InputField.ligthBgColor,
             align="left",
-            height=10,
+            height=32,
         )
+
+        self.generate.btn.config(command=self.randomKey)
+
+    def randomKey(self):
+        self.inputField.textBox.delete(1.0, "end")
+        secretKey = "".join(
+            random.choices(
+                string.ascii_uppercase + string.digits,
+                k=self.stringSize(),
+            ), )
+        self.inputField.textBox.insert(1.0, secretKey)

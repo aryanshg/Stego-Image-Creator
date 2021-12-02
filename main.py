@@ -1,6 +1,4 @@
-from tkinter import Canvas, IntVar, Radiobutton, Scrollbar, StringVar, Tk, Frame, font, filedialog
-import string
-import random
+from tkinter import Canvas, IntVar, Scrollbar, StringVar, Tk, Frame, font, filedialog
 from components.btn import Btn
 from components.file_chooser import FileChooser
 from components.inputfield import InputField
@@ -18,46 +16,35 @@ def showPage(frame: Frame) -> None:
     frame.tkraise()
 
 
-def browseFiles() -> str:
-    filename = filedialog.askopenfilename(
-        initialdir="/",
-        title="Select a plain file",
-        filetypes=(("Text files", "*.txt*"), ("all files", "*.*")),
-    )
+def encode():
+    print(plainFileChooser.fileFullPath)
+    print(plainTextInput.getValue())
+    print(keySizeSelection.value.get())
+    print(secretKeyInput1.inputField.getValue())
+    print(coverImageChooser.fileFullPath)
 
 
-def randomKey():
-    # t3.delete(0, "end")
-    secretKey = "".join(
-        random.choices(string.ascii_uppercase + string.digits, k=16))
-    print(secretKey)
-    # t3.insert(0, secretKey)
+def decode():
+    print(stegoObjectChooser.fileFullPath)
+    print(secretKeyInput2.getValue())
+    print(originalMessageFormat.value.get())
+    print(originalFileExtension.getValue())
 
 
 root = Tk()
 root.title("Stego Image Creator | Project")
 root.iconbitmap("assets/images/favicon.ico")
-root.geometry("515x650")
-root.minsize(515, 650)
+root.geometry("490x625")
+root.minsize(490, 625)
 root.configure(bg=darkBgColor)
 root.resizable(False, True)
-root.state("zoomed")
 
 defaultFont = font.nametofont("TkDefaultFont")
-defaultFont.configure(family="Poppins", size=15)
+defaultFont.configure(family="Poppins", size=12)
 root.option_add("*Font", defaultFont)
 
 root.rowconfigure(0, weight=1)
 root.columnconfigure(0, weight=1)
-
-plainFilePath = "C:/Users/Aryansh/Desktop/file-to-encrypt.txt"
-plainText = StringVar()
-keySize = IntVar()
-secretKey = StringVar()
-coverFilePath = "C:/Users/Aryansh/Desktop/cover-image.png"
-stegoObjectPath = "C:/Users/Aryansh/Desktop/cover-image.png"
-originalMessageType = IntVar()
-originalFileExtension = StringVar()
 
 homeFrame = Frame(root)
 encodeFrame = Frame(root)
@@ -120,21 +107,20 @@ navbar1.back.btn.config(command=lambda: showPage(homeFrame))
 
 plainFileChooser = FileChooser(
     window=enBottomFrame,
+    dialogTitle="Select a plain file",
     title="Choose plain file:",
     fileImageName="file.png",
-    filePath=plainFilePath,
+    fileTypes=(("All Files", "*.*"), ),
 )
-# plainFileChooser.clearPath.btn.config(command=browseFiles)
-plainFileChooser.chooser.btn.config(command=browseFiles)
 
 # -----
 
-l1 = ShowLabel(
+ShowLabel(
     window=enBottomFrame,
     text="OR",
-    style=("Poppins", 15, font.BOLD),
+    style=("Poppins", 12, font.BOLD),
     vAlign="n",
-    marginY=(15, 0),
+    marginY=(20, 0),
 )
 
 # -----
@@ -143,13 +129,13 @@ plainTextInput = TextField(
     window=enBottomFrame,
     title="Enter plain text:",
     height=3,
-    width=49,
+    width=46,
     align="top",
 )
 
 # -----
 
-keySizeSelection1 = SelectionBtn(
+keySizeSelection = SelectionBtn(
     window=enBottomFrame,
     title="Select key size in bytes:",
     options=["16", "24", "32"],
@@ -157,7 +143,11 @@ keySizeSelection1 = SelectionBtn(
 
 # -----
 
-secretKeyInput1 = InputField(window=enBottomFrame, title="Enter secret key:")
+secretKeyInput1 = InputField(
+    window=enBottomFrame,
+    title="Enter secret key:",
+    stringSize=lambda: keySizeSelection.value.get(),
+)
 
 # -----
 
@@ -165,18 +155,18 @@ coverImageChooser = FileChooser(
     window=enBottomFrame,
     title="Choose cover image:",
     fileImageName="image.png",
-    filePath=coverFilePath,
+    dialogTitle="Select a cover image",
+    marginY=(18, 0),
+    fileTypes=(
+        ("JPEG", "*.jpg;*.jpeg"),
+        ("PNG", "*.png"),
+    ),
 )
-# coverImageChooser.clearPath.btn.config(command=browseFiles)
-coverImageChooser.chooser.btn.config(command=browseFiles)
 
 # -----
 
-encodeBtn = Btn(
-    window=enBottomFrame,
-    fileName="encode-btn.png",
-    vpad=15,
-)
+encodeBtn = Btn(window=enBottomFrame, fileName="encode-btn.png", marginY=18)
+encodeBtn.btn.config(command=encode)
 
 # ================================================================== DECODE ==================================================================
 deBottomScroller = Scrollbar(decodeFrame)
@@ -215,29 +205,28 @@ navbar2.back.btn.config(command=lambda: showPage(homeFrame))
 
 stegoObjectChooser = FileChooser(
     window=deBottomFrame,
+    dialogTitle="Select a stego object",
     title="Choose stego object:",
-    fileImageName="file.png",
-    filePath=plainFilePath,
+    fileImageName="image.png",
+    fileTypes=(
+        ("JPEG", "*.jpg;*.jpeg"),
+        ("PNG", "*.png"),
+    ),
 )
-# stegoObjectChooser.clearPath.btn.config(command=browseFiles)
-stegoObjectChooser.chooser.btn.config(command=browseFiles)
 
 # -----
 
-keySizeSelection2 = SelectionBtn(
+secretKeyInput2 = TextField(
     window=deBottomFrame,
-    title="Select key size in bytes:",
-    options=["16", "24", "32"],
-    marginY=(10, 0),
+    title="Enter secret key:",
+    width=46,
+    align="top",
+    marginY=(18, 0),
 )
 
 # -----
 
-secretKeyInput2 = InputField(window=deBottomFrame, title="Enter secret key:")
-
-# -----
-
-cipherFormatSelection = SelectionBtn(
+originalMessageFormat = SelectionBtn(
     window=deBottomFrame,
     title="Select original message format:",
     options=["Text", "File"],
@@ -245,20 +234,17 @@ cipherFormatSelection = SelectionBtn(
 
 # -----
 
-originalFileType = TextField(
+originalFileExtension = TextField(
     window=deBottomFrame,
     title="Enter original file extension:",
-    width=49,
+    width=46,
     align="top",
 )
 
 # -----
 
-decodeBtn = Btn(
-    window=deBottomFrame,
-    fileName="decode-btn.png",
-    vpad=15,
-)
+decodeBtn = Btn(window=deBottomFrame, fileName="decode-btn.png", marginY=18)
+decodeBtn.btn.config(command=decode)
 
 showPage(homeFrame)
 root.mainloop()

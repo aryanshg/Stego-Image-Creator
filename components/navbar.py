@@ -1,5 +1,6 @@
 from tkinter import Tk
 from components.btn import Btn
+from tkinter.font import BOLD
 from components.show_label import ShowLabel
 
 
@@ -10,6 +11,7 @@ class NavBar:
             fileName="back.png",
             align="left",
             vAlign="n",
+            marginY=10,
         )
 
         self.title = ShowLabel(
@@ -17,6 +19,6 @@ class NavBar:
             text=title,
             align="left",
             vAlign="n",
-            style=("Poppins", 16),
+            style=("Poppins", 12, BOLD),
             marginY=10,
         )
