@@ -1,4 +1,5 @@
-from tkinter import Canvas, IntVar, Scrollbar, StringVar, Tk, Frame, font, filedialog
+from tkinter import Canvas, Scrollbar, Tk, Frame, font
+import tkinter.messagebox
 from components.btn import Btn
 from components.file_chooser import FileChooser
 from components.inputfield import InputField
@@ -17,18 +18,59 @@ def showPage(frame: Frame) -> None:
 
 
 def encode():
-    print(plainFileChooser.fileFullPath)
-    print(plainTextInput.getValue())
-    print(keySizeSelection.value.get())
-    print(secretKeyInput1.inputField.getValue())
-    print(coverImageChooser.fileFullPath)
+    if (plainFileChooser.fileFullPath == "" and plainTextInput.getValue()
+            == "") or (plainFileChooser.fileFullPath != ""
+                       and plainTextInput.getValue() != ""):
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please choose either plain file or enter plain text.",
+        )
+    elif (secretKeyInput1.inputField.getValue()
+          == "") or len(secretKeyInput1.inputField.getValue()
+                        ) != keySizeSelection.value.get():
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please enter secret key of size 16, 24 or 32 bytes.",
+        )
+    elif coverImageChooser.fileFullPath == "":
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please choose cover image.",
+        )
+    else:
+        print(plainFileChooser.fileFullPath)
+        print(plainTextInput.getValue())
+        print(keySizeSelection.value.get())
+        print(secretKeyInput1.inputField.getValue())
+        print(coverImageChooser.fileFullPath)
 
 
 def decode():
-    print(stegoObjectChooser.fileFullPath)
-    print(secretKeyInput2.getValue())
-    print(originalMessageFormat.value.get())
-    print(originalFileExtension.getValue())
+    if stegoObjectChooser.fileFullPath == "":
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please choose stego object.",
+        )
+    elif (secretKeyInput2.getValue()
+          == "") or (len(secretKeyInput2.getValue()) != 16
+                     and len(secretKeyInput2.getValue()) != 24
+                     and len(secretKeyInput2.getValue()) != 32):
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please enter secret key of size 16, 24 or 32 bytes.",
+        )
+    elif originalMessageFormat.value.get() == 2 and (
+            originalFileExtension.getValue() == ""
+            or originalFileExtension.getValue()[0] != "."):
+        tkinter.messagebox.showerror(
+            title="Error!",
+            message="Please enter valid original file extension.",
+        )
+    else:
+        print(stegoObjectChooser.fileFullPath)
+        print(secretKeyInput2.getValue())
+        print(originalMessageFormat.value.get())
+        print(originalFileExtension.getValue())
 
 
 root = Tk()

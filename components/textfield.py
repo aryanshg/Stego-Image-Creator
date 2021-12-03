@@ -1,4 +1,4 @@
-from tkinter import StringVar, Text, Tk
+from tkinter import Text, Tk
 from tkinter.font import BOLD
 
 from components.show_label import ShowLabel
