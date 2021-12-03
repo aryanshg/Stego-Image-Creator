@@ -37,7 +37,7 @@ class InputField:
         self.inputField.textBox.delete(1.0, "end")
         secretKey = "".join(
             random.choices(
-                string.ascii_uppercase + string.digits,
+                string.ascii_letters + string.digits + string.punctuation,
                 k=self.stringSize(),
             ), )
         self.inputField.textBox.insert(1.0, secretKey)

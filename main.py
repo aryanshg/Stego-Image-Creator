@@ -1,5 +1,6 @@
-from tkinter import Canvas, Scrollbar, Tk, Frame, font
 import tkinter.messagebox
+from tkinter import Canvas, Scrollbar, Tk, Frame, font
+from aes import AESEncryptor
 from components.btn import Btn
 from components.file_chooser import FileChooser
 from components.inputfield import InputField
@@ -7,6 +8,7 @@ from components.navbar import NavBar
 from components.selection_btn import SelectionBtn
 from components.show_label import ShowLabel
 from components.textfield import TextField
+from lsb import LSBEmbedding
 
 darkBgColor = "#222021"
 ligthBgColor = "#282828"
@@ -44,6 +46,27 @@ def encode():
         print(secretKeyInput1.inputField.getValue())
         print(coverImageChooser.fileFullPath)
 
+        aes = AESEncryptor(secretKeyInput1.inputField.getValue())
+
+        if plainFileChooser.fileFullPath != "":
+            aes.encryptFile(plainFileChooser.fileFullPath)
+        else:
+            aes.encrypt(bytes(plainTextInput.getValue(), "utf-8"))
+
+        # -----
+
+        lsb = LSBEmbedding()
+
+        lsb.embedMsg(coverImageChooser.fileFullPath, aes.cipherText)
+
+        answer = tkinter.messagebox.askokcancel(
+            title="Encoding successful",
+            message="Do you want to view stego object ?",
+        )
+
+        if answer:
+            print("ok")
+
 
 def decode():
     if stegoObjectChooser.fileFullPath == "":
@@ -71,6 +94,35 @@ def decode():
         print(secretKeyInput2.getValue())
         print(originalMessageFormat.value.get())
         print(originalFileExtension.getValue())
+
+        lsb = LSBEmbedding()
+
+        lsb.extractMsg(stegoObjectChooser.fileFullPath)
+
+        # -----
+
+        aes = AESEncryptor(secretKeyInput2.getValue())
+
+        aes.decrypt(lsb.embededMessage)
+
+        if originalMessageFormat.value.get() == 1:
+            tkinter.messagebox.showinfo(
+                title="Decoding successful",
+                message="Your Decoded Message is: " +
+                str(aes.plaintext, "utf-8"),
+            )
+        else:
+            print("de")
+            # newFilePath = stegoObjectChooser.fileFullPath.split("/").pop(-1).join("/") + "encode-" + stegoObjectChooser.fileName
+            # with open(newFilePath, 'wb') as f1:
+            # f1.write(aes.plaintext)
+            answer = tkinter.messagebox.askokcancel(
+                title="Decoding successful",
+                message="Do you want to view embed object ?",
+            )
+
+            if answer:
+                print("ok")
 
 
 root = Tk()
