@@ -21,5 +21,6 @@
 ## method - 2
 
 - download this project as zip from github then extract it
-- open program folder from extracted folder
+- extract the program.zip file
+- open program folder
 - run main.exe
