@@ -2,6 +2,7 @@ from tkinter import Frame, Tk, filedialog
 from tkinter.font import BOLD
 from components.btn import Btn
 from components.show_label import ShowLabel
+from pathlib import Path
 
 
 class FileChooser:
@@ -86,7 +87,7 @@ class FileChooser:
     def browseFiles(self) -> None:
 
         if self.fileName == "No file chosen":
-            self.initialDir = "/"
+            self.initialDir = str(Path.home() / "Downloads")
         else:
             self.initialDir = self.fileFullPath
 

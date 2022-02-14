@@ -1,119 +1,103 @@
-import numpy as np
 from PIL import Image
+from struct import pack
 
 
-class LSBEmbedding:
+class Lsb:
     def __init__(self) -> None:
         self.errorMessage = ""
 
-    def embedMsg(self, fileName: str, message: bytes) -> None:
-        print("image processing started")
-
-        img = Image.open(fileName, 'r')
-
-        print("image opened")
-
-        width, height = img.size
-
-        print("got image size")
-
-        array = np.array(list(img.getdata()))
-
-        print("got image pixel list")
-
-        if img.mode == 'RGB':
-            n = 3
-        elif img.mode == 'RGBA':
-            n = 4
-        total_pixels = array.size // n
-
-        print("image processing done")
-
-        message += b"$t3g0"
-        b_message = ''
-        for i in message:
-            b_message += ''.join(bin(i)[2:])
-            b_message += ''.join('00101100')
-            b_message += ''.join('01001110')
-            b_message += ''.join('01110011')
-
-        req_pixels = len(b_message)
-
-        print("message processing done")
-
-        if req_pixels > total_pixels:
-            self.errorMessage = "Error! Total pixels available is insufficient to store the secret message, need larger file."
-
+    def hide(self, fileName: str, message: bytes) -> None:
+        messageLength = len(message)
+        if messageLength == 0:
+            self.errorMessage = "Message length is zero."
         else:
-            index = 0
-            for p in range(total_pixels):
-                for q in range(0, 3):
-                    if index < req_pixels:
-                        array[p][q] = int(
-                            bin(array[p][q])[2:9] + b_message[index],
-                            2,
-                        )
-                        index += 1
-            print("lsb replacement done")
-
-            array = array.reshape(height, width, n)
-            enc_img = Image.fromarray(array.astype('uint8'), img.mode)
-
-            print("new message embedding in image done")
-
-            self.stegoFilePath = fileName.split(
-                ".")[0] + "-enc." + fileName.split(".")[1]
-
-            enc_img.save(self.stegoFilePath)
-
-            print("encode image save")
-
-    def extractMsg(self, fileName: str) -> None:
-        print("image processing started")
-
-        img = Image.open(fileName, 'r')
-
-        print("image opened")
-
-        array = np.array(list(img.getdata()))
-
-        print("got image pixel list")
-
-        if img.mode == 'RGB':
-            n = 3
-        elif img.mode == 'RGBA':
-            n = 4
-
-        total_pixels = array.size // n
-
-        print("image processing done")
-
-        hidden_bits = ""
-
-        for p in range(total_pixels):
-            for q in range(0, 3):
-                hidden_bits += (bin(array[p][q])[2:][-1])
-
-        print("hidden bit string extraction from lsb done")
-
-        hidden_bits = [
-            hidden_bits[i:i + 8] for i in range(0, len(hidden_bits), 8)
-        ]
-
-        print("convertion of hidden bit string into 8 bits arr done")
-
-        message = ""
-
-        for i in range(len(hidden_bits)):
-            if message[-5:] == "$t3g0":
-                break
+            img = Image.open(fileName)
+            if img.mode not in ["RGB", "RGBA"]:
+                self.errorMessage = "Not a RGB image."
             else:
-                message += chr(int(hidden_bits[i], 2))
+                imgCopy = img.copy()
+                width, height = img.size
+                index = 0
 
-        print("convert of 8 bits arr into string message done")
+                message += b'$t3g0'
+                # message string to binary string
+                messageBits = "".join([bin(i)[2:].zfill(8) for i in message])
+                messageBitsLength = len(messageBits)
 
-        if "$t3g0" in message:
-            self.embededMessage = bytes(message[2:], 'utf-8')
-            self.embededMessage = bytes(message[:-5], 'utf-8')
+                noOfPixels = width * height
+
+                if messageBitsLength > noOfPixels * 3:
+                    self.errorMessage = "The message you want to hide is too long."
+                else:
+                    for row in range(height):
+                        for col in range(width):
+                            if index + 3 <= messageBitsLength:
+
+                                # Get the colour component.
+                                pixel = img.getpixel((col, row))
+                                r = pixel[0]
+                                g = pixel[1]
+                                b = pixel[2]
+
+                                # Change the Least Significant Bit of each colour component.
+                                r = int(bin(r)[:-1] + messageBits[index], 2)
+                                g = int(
+                                    bin(g)[:-1] + messageBits[index + 1], 2)
+                                b = int(
+                                    bin(b)[:-1] + messageBits[index + 2], 2)
+
+                                # Save the new pixel
+                                if img.mode == "RGBA":
+                                    imgCopy.putpixel((col, row),
+                                                     (r, g, b, pixel[3]))
+                                else:
+                                    imgCopy.putpixel((col, row), (r, g, b))
+
+                                index += 3
+                            else:
+                                break
+
+                    img.close()
+
+                    self.stegoFilePath = fileName.split(
+                        ".")[0] + "-enc." + fileName.split(".")[1]
+
+                    imgCopy.save(self.stegoFilePath)
+
+    def reveal(self, fileName: str) -> None:
+        img = Image.open(fileName)
+        if img.mode not in ["RGB", "RGBA"]:
+            self.errorMessage = "Not a RGB image."
         else:
-            self.errorMessage = "No Hidden Message Found"
+            width, height = img.size
+            hiddenBits = ""
+            for row in range(height):
+                for col in range(width):
+                    # pixel = [r, g, b] or [r,g,b,a]
+                    pixel = img.getpixel((col, row))
+                    if img.mode == "RGBA":
+                        pixel = pixel[:3]  # ignore the alpha
+                    for color in pixel:
+                        hiddenBits += bin(color)[-1]
+
+            img.close()
+
+            # hidden bits string to 8 bit string list
+            hiddenBitsList = [
+                hiddenBits[i:i + 8] for i in range(0, len(hiddenBits), 8)
+            ]
+
+            self.embededMessage = b''
+            isSecretMsgExist = False
+
+            for i in hiddenBitsList:
+                if self.embededMessage[-5:] == b'$t3g0':
+                    isSecretMsgExist = True
+                    break
+                else:
+                    self.embededMessage += pack('B', int(i, 2))
+
+            if not isSecretMsgExist:
+                self.errorMessage = "No Hidden Message Found"
+            else:
+                self.embededMessage = self.embededMessage[:-5]

@@ -9,7 +9,7 @@ from components.navbar import NavBar
 from components.selection_btn import SelectionBtn
 from components.show_label import ShowLabel
 from components.textfield import TextField
-from lsb import LSBEmbedding
+from lsb import Lsb
 
 darkBgColor = "#222021"
 ligthBgColor = "#282828"
@@ -41,11 +41,6 @@ def encode():
             message="Please choose cover image.",
         )
     else:
-        print(plainFileChooser.fileFullPath)
-        print(plainTextInput.getValue())
-        print(keySizeSelection.value.get())
-        print(secretKeyInput1.inputField.getValue())
-        print(coverImageChooser.fileFullPath)
 
         aes = AESEncryptor(secretKeyInput1.inputField.getValue())
 
@@ -56,9 +51,9 @@ def encode():
 
         # -----
 
-        lsb = LSBEmbedding()
+        lsb = Lsb()
 
-        lsb.embedMsg(coverImageChooser.fileFullPath, aes.cipherText)
+        lsb.hide(coverImageChooser.fileFullPath, aes.cipherText)
 
         if lsb.errorMessage == "":
             answer = tkinter.messagebox.askokcancel(
@@ -97,14 +92,10 @@ def decode():
             message="Please enter valid original file extension.",
         )
     else:
-        print(stegoObjectChooser.fileFullPath)
-        print(secretKeyInput2.getValue())
-        print(originalMessageFormat.value.get())
-        print(originalFileExtension.getValue())
 
-        lsb = LSBEmbedding()
+        lsb = Lsb()
 
-        lsb.extractMsg(stegoObjectChooser.fileFullPath)
+        lsb.reveal(stegoObjectChooser.fileFullPath)
 
         # -----
 
