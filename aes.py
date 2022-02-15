@@ -6,6 +6,7 @@ class AESEncryptor:
     def __init__(self, secretKey: str) -> None:
         self.secretKey = bytes(secretKey, "utf-8")
         self.iv = bytes("_w@?]`1p]3L9\@)q", "utf-8")
+        self.errorMessage = ""
 
     def encrypt(self, plaintext: bytes) -> None:
         obj = AES.new(self.secretKey, AES.MODE_CBC, self.iv)
@@ -21,5 +22,8 @@ class AESEncryptor:
         self.encrypt(plaintext)
 
     def decrypt(self, cipherText: bytes) -> None:
-        obj = AES.new(self.secretKey, AES.MODE_CBC, self.iv)
-        self.plaintext = unpad(obj.decrypt(cipherText), 16)
+        try:
+            obj = AES.new(self.secretKey, AES.MODE_CBC, self.iv)
+            self.plaintext = unpad(obj.decrypt(cipherText), 16)
+        except:
+            self.errorMessage = "Invalid AES key, please enter a valid key to decrypt the message."

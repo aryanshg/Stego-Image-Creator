@@ -99,31 +99,38 @@ def decode():
 
             aes.decrypt(lsb.embededMessage)
 
-            if str(aes.plaintext)[2:].split(":-")[0].split(";")[0] == "ipt":
-                tkinter.messagebox.showinfo(
-                    title="Decoding successful",
-                    message="Your Decoded Message is: " +
-                    str(aes.plaintext, "utf-8").split(":-")[1],
-                )
+            if aes.errorMessage == "":
+                if str(aes.plaintext)[2:].split(":-")[0].split(
+                        ";")[0] == "ipt":
+                    tkinter.messagebox.showinfo(
+                        title="Decoding successful",
+                        message="Your Decoded Message is: " +
+                        str(aes.plaintext, "utf-8").split(":-")[1],
+                    )
+                else:
+                    originalFileName = str(
+                        aes.plaintext)[2:].split(":-")[0].split(";")[1]
+                    originalFileExtension = str(
+                        aes.plaintext)[2:].split(":-")[0].split(";")[2]
+                    newFilePath = "/".join(
+                        stegoObjectChooser.fileFullPath.split("/")[0:-1]
+                    ) + "/" + originalFileName + "-dec" + originalFileExtension
+
+                    with open(newFilePath, 'wb') as f1:
+                        f1.write(aes.plaintext[aes.plaintext.find(b':-') + 2:])
+
+                    answer = tkinter.messagebox.askokcancel(
+                        title="Decoding successful",
+                        message="Do you want to view decoded message ?",
+                    )
+
+                    if answer:
+                        os.startfile(newFilePath)
             else:
-                originalFileName = str(
-                    aes.plaintext)[2:].split(":-")[0].split(";")[1]
-                originalFileExtension = str(
-                    aes.plaintext)[2:].split(":-")[0].split(";")[2]
-                newFilePath = "/".join(
-                    stegoObjectChooser.fileFullPath.split("/")[0:-1]
-                ) + "/" + originalFileName + "-dec" + originalFileExtension
-
-                with open(newFilePath, 'wb') as f1:
-                    f1.write(aes.plaintext[aes.plaintext.find(b':-') + 2:])
-
-                answer = tkinter.messagebox.askokcancel(
-                    title="Decoding successful",
-                    message="Do you want to view decoded message ?",
+                tkinter.messagebox.showerror(
+                    title="Error!",
+                    message=aes.errorMessage,
                 )
-
-                if answer:
-                    os.startfile(newFilePath)
         else:
             tkinter.messagebox.showerror(
                 title="Error!",
