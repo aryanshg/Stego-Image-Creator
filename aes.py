@@ -13,7 +13,11 @@ class AESEncryptor:
 
     def encryptFile(self, fileName: str) -> None:
         with open(fileName, 'rb') as f1:
-            plaintext = f1.read()
+            plaintext = b'ipf;' + bytes(
+                fileName.split("/")[-1].split(".")[0],
+                "utf-8") + b';.' + bytes(
+                    fileName.split("/")[-1].split(".")[1], "utf-8") + b':-'
+            plaintext += f1.read()
         self.encrypt(plaintext)
 
     def decrypt(self, cipherText: bytes) -> None:

@@ -47,7 +47,8 @@ def encode():
         if plainFileChooser.fileFullPath != "":
             aes.encryptFile(plainFileChooser.fileFullPath)
         else:
-            aes.encrypt(bytes(plainTextInput.getValue(), "utf-8"))
+            hideText = "ipt:-" + plainTextInput.getValue()
+            aes.encrypt(bytes(hideText, "utf-8"))
 
         # -----
 
@@ -84,13 +85,6 @@ def decode():
             title="Error!",
             message="Please enter secret key of size 16, 24 or 32 bytes.",
         )
-    elif originalMessageFormat.value.get() == 2 and (
-            originalFileExtension.getValue() == ""
-            or originalFileExtension.getValue()[0] != "."):
-        tkinter.messagebox.showerror(
-            title="Error!",
-            message="Please enter valid original file extension.",
-        )
     else:
 
         lsb = Lsb()
@@ -105,18 +99,23 @@ def decode():
 
             aes.decrypt(lsb.embededMessage)
 
-            if originalMessageFormat.value.get() == 1:
+            if str(aes.plaintext)[2:].split(":-")[0].split(";")[0] == "ipt":
                 tkinter.messagebox.showinfo(
                     title="Decoding successful",
                     message="Your Decoded Message is: " +
-                    str(aes.plaintext, "utf-8"),
+                    str(aes.plaintext, "utf-8").split(":-")[1],
                 )
             else:
-                newFilePath = stegoObjectChooser.fileFullPath.split(
-                    ".")[0] + "-dec" + originalFileExtension.getValue()
+                originalFileName = str(
+                    aes.plaintext)[2:].split(":-")[0].split(";")[1]
+                originalFileExtension = str(
+                    aes.plaintext)[2:].split(":-")[0].split(";")[2]
+                newFilePath = "/".join(
+                    stegoObjectChooser.fileFullPath.split("/")[0:-1]
+                ) + "/" + originalFileName + "-dec" + originalFileExtension
 
                 with open(newFilePath, 'wb') as f1:
-                    f1.write(aes.plaintext)
+                    f1.write(aes.plaintext[aes.plaintext.find(b':-') + 2:])
 
                 answer = tkinter.messagebox.askokcancel(
                     title="Decoding successful",
@@ -259,8 +258,8 @@ coverImageChooser = FileChooser(
     dialogTitle="Select a cover image",
     marginY=(18, 0),
     fileTypes=(
-        ("JPEG", "*.jpg;*.jpeg"),
         ("PNG", "*.png"),
+        ("JPEG", "*.jpg;*.jpeg"),
     ),
 )
 
@@ -310,8 +309,8 @@ stegoObjectChooser = FileChooser(
     title="Choose stego object:",
     fileImageName="image.png",
     fileTypes=(
-        ("JPEG", "*.jpg;*.jpeg"),
         ("PNG", "*.png"),
+        ("JPEG", "*.jpg;*.jpeg"),
     ),
 )
 
@@ -323,23 +322,6 @@ secretKeyInput2 = TextField(
     width=46,
     align="top",
     marginY=(18, 0),
-)
-
-# -----
-
-originalMessageFormat = SelectionBtn(
-    window=deBottomFrame,
-    title="Select original message format:",
-    options=["Text", "File"],
-)
-
-# -----
-
-originalFileExtension = TextField(
-    window=deBottomFrame,
-    title="Enter original file extension:",
-    width=46,
-    align="top",
 )
 
 # -----
