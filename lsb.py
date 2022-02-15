@@ -71,33 +71,45 @@ class Lsb:
         else:
             width, height = img.size
             hiddenBits = ""
+            self.isSecretMsgExist = False
+
             for row in range(height):
                 for col in range(width):
                     # pixel = [r, g, b] or [r,g,b,a]
                     pixel = img.getpixel((col, row))
+
                     if img.mode == "RGBA":
                         pixel = pixel[:3]  # ignore the alpha
+
                     for color in pixel:
                         hiddenBits += bin(color)[-1]
 
+                    if len(hiddenBits) % 8 == 0:
+                        # hidden bits string to 8 bit string list
+                        hiddenBitsList = [
+                            hiddenBits[i:i + 8]
+                            for i in range(0, len(hiddenBits), 8)
+                        ]
+
+                        self.embededMessage = b''
+                        self.isSecretMsgExist = False
+
+                        for i in hiddenBitsList:
+                            if self.embededMessage[-5:] == b'$t3g0':
+                                self.isSecretMsgExist = True
+                                break
+                            else:
+                                self.embededMessage += pack('B', int(i, 2))
+
+                    if self.isSecretMsgExist:
+                        break
+
+                if self.isSecretMsgExist:
+                    break
+
             img.close()
 
-            # hidden bits string to 8 bit string list
-            hiddenBitsList = [
-                hiddenBits[i:i + 8] for i in range(0, len(hiddenBits), 8)
-            ]
-
-            self.embededMessage = b''
-            isSecretMsgExist = False
-
-            for i in hiddenBitsList:
-                if self.embededMessage[-5:] == b'$t3g0':
-                    isSecretMsgExist = True
-                    break
-                else:
-                    self.embededMessage += pack('B', int(i, 2))
-
-            if not isSecretMsgExist:
+            if not self.isSecretMsgExist:
                 self.errorMessage = "No Hidden Message Found"
             else:
                 self.embededMessage = self.embededMessage[:-5]
