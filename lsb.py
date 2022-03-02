@@ -19,7 +19,17 @@ class Lsb:
                 width, height = img.size
                 index = 0
 
-                message += b'$t3g0'
+                i = messageLength + 6 + len(str(messageLength))
+                while i:
+                    if i % 3 == 0 and i % 8 == 0:
+                        break
+                    i += 1
+
+                message = bytes(str(i), "utf-8") + b'$:-' + message + b'$:-'
+
+                while len(message) < i:
+                    message += b'0'
+
                 # message string to binary string
                 messageBits = "".join([bin(i)[2:].zfill(8) for i in message])
                 messageBitsLength = len(messageBits)
@@ -72,6 +82,8 @@ class Lsb:
             width, height = img.size
             hiddenBits = ""
             self.isSecretMsgExist = False
+            self.embededMessage = b''
+            self.messageLength = b''
 
             for row in range(height):
                 for col in range(width):
@@ -84,22 +96,40 @@ class Lsb:
                     for color in pixel:
                         hiddenBits += bin(color)[-1]
 
-                    if len(hiddenBits) % 8 == 0:
+                    if len(hiddenBits
+                           ) > 80 and len(hiddenBits) % 8 == 0 and type(
+                               self.messageLength) != int:
+
+                        hiddenBitsList = [
+                            hiddenBits[i:i + 8]
+                            for i in range(0, len(hiddenBits), 8)
+                        ]
+
+                        self.messageLength = b''
+
+                        for i in hiddenBitsList:
+                            self.messageLength += pack('B', int(i, 2))
+
+                        if self.messageLength.find(b'$:-'):
+
+                            self.messageLength = int(
+                                str(self.messageLength)
+                                [2:str(self.messageLength).find('$:-')])
+
+                    if len(hiddenBits) % 8 == 0 and type(
+                            self.messageLength) == int and len(
+                                hiddenBits) == self.messageLength * 8:
+
+                        self.isSecretMsgExist = True
+
                         # hidden bits string to 8 bit string list
                         hiddenBitsList = [
                             hiddenBits[i:i + 8]
                             for i in range(0, len(hiddenBits), 8)
                         ]
 
-                        self.embededMessage = b''
-                        self.isSecretMsgExist = False
-
                         for i in hiddenBitsList:
-                            if self.embededMessage[-5:] == b'$t3g0':
-                                self.isSecretMsgExist = True
-                                break
-                            else:
-                                self.embededMessage += pack('B', int(i, 2))
+                            self.embededMessage += pack('B', int(i, 2))
 
                     if self.isSecretMsgExist:
                         break
@@ -112,4 +142,4 @@ class Lsb:
             if not self.isSecretMsgExist:
                 self.errorMessage = "No Hidden Message Found"
             else:
-                self.embededMessage = self.embededMessage[:-5]
+                self.embededMessage = self.embededMessage.split(b"$:-")[1]

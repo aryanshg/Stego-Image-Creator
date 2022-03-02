@@ -10,11 +10,10 @@
 - install these python modules:
 
 1. pip install tk
-2. pip install numpy
-3. pip install Pillow
-4. pip install pycrypto
+2. pip install Pillow
+3. pip install pycrypto
 
-- close cmd amd open again from extracted folder
+- close cmd and open again from extracted folder
 - type - python main.py
 - a gui based window will appear, run app
 

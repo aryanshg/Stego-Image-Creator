@@ -10,6 +10,7 @@ from components.selection_btn import SelectionBtn
 from components.show_label import ShowLabel
 from components.textfield import TextField
 from lsb import Lsb
+import time
 
 darkBgColor = "#222021"
 ligthBgColor = "#282828"
@@ -21,6 +22,7 @@ def showPage(frame: Frame) -> None:
 
 
 def encode():
+    start = time.time()
     if (plainFileChooser.fileFullPath == "" and plainTextInput.getValue()
             == "") or (plainFileChooser.fileFullPath != ""
                        and plainTextInput.getValue() != ""):
@@ -56,10 +58,13 @@ def encode():
 
         lsb.hide(coverImageChooser.fileFullPath, aes.cipherText)
 
+        end = time.time()
+
         if lsb.errorMessage == "":
             answer = tkinter.messagebox.askokcancel(
                 title="Encoding successful",
-                message="Do you want to view stego object ?",
+                message="Do you want to view stego object ?" +
+                "\n\nEmbedding Time: " + str(end - start) + " seconds",
             )
 
             if answer:
@@ -67,11 +72,13 @@ def encode():
         else:
             tkinter.messagebox.showerror(
                 title="Error!",
-                message=lsb.errorMessage,
+                message=lsb.errorMessage + "\n\nEmbedding Time: " +
+                str(end - start) + " seconds",
             )
 
 
 def decode():
+    start = time.time()
     if stegoObjectChooser.fileFullPath == "":
         tkinter.messagebox.showerror(
             title="Error!",
@@ -102,10 +109,15 @@ def decode():
             if aes.errorMessage == "":
                 if str(aes.plaintext)[2:].split(":-")[0].split(
                         ";")[0] == "ipt":
+
+                    end = time.time()
+
                     tkinter.messagebox.showinfo(
                         title="Decoding successful",
                         message="Your Decoded Message is: " +
-                        str(aes.plaintext, "utf-8").split(":-")[1],
+                        str(aes.plaintext, "utf-8").split(":-")[1] +
+                        "\n\nExtraction Time: " + str(end - start) +
+                        " seconds",
                     )
                 else:
                     originalFileName = str(
@@ -119,22 +131,34 @@ def decode():
                     with open(newFilePath, 'wb') as f1:
                         f1.write(aes.plaintext[aes.plaintext.find(b':-') + 2:])
 
+                    end = time.time()
+
                     answer = tkinter.messagebox.askokcancel(
                         title="Decoding successful",
-                        message="Do you want to view decoded message ?",
+                        message="Do you want to view decoded message ?" +
+                        "\n\nExtraction Time: " + str(end - start) +
+                        " seconds",
                     )
 
                     if answer:
                         os.startfile(newFilePath)
             else:
+
+                end = time.time()
+
                 tkinter.messagebox.showerror(
                     title="Error!",
-                    message=aes.errorMessage,
+                    message=aes.errorMessage + "\n\nExtraction Time: " +
+                    str(end - start) + " seconds",
                 )
         else:
+
+            end = time.time()
+
             tkinter.messagebox.showerror(
                 title="Error!",
-                message=lsb.errorMessage,
+                message=lsb.errorMessage + "\n\nExtraction Time: " +
+                str(end - start) + " seconds",
             )
 
 
