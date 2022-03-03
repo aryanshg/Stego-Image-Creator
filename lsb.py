@@ -110,11 +110,14 @@ class Lsb:
                         for i in hiddenBitsList:
                             self.messageLength += pack('B', int(i, 2))
 
-                        if self.messageLength.find(b'$:-'):
+                        if self.messageLength.find(b'$:-') != -1:
 
-                            self.messageLength = int(
-                                str(self.messageLength)
-                                [2:str(self.messageLength).find('$:-')])
+                            try:
+                                self.messageLength = int(
+                                    str(self.messageLength)
+                                    [2:str(self.messageLength).find('$:-')])
+                            except:
+                                continue
 
                     if len(hiddenBits) % 8 == 0 and type(
                             self.messageLength) == int and len(
@@ -131,10 +134,13 @@ class Lsb:
                         for i in hiddenBitsList:
                             self.embededMessage += pack('B', int(i, 2))
 
-                    if self.isSecretMsgExist:
+                    if self.isSecretMsgExist or (
+                            len(hiddenBits) > 240
+                            and type(self.messageLength) != int):
                         break
 
-                if self.isSecretMsgExist:
+                if self.isSecretMsgExist or (len(hiddenBits) > 240 and
+                                             type(self.messageLength) != int):
                     break
 
             img.close()
