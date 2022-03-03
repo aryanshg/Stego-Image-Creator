@@ -72,7 +72,7 @@ class Lsb:
                     self.stegoFilePath = fileName.split(
                         ".")[0] + "-enc." + fileName.split(".")[1]
 
-                    imgCopy.save(self.stegoFilePath)
+                    imgCopy.save(self.stegoFilePath, format="png")
 
     def reveal(self, fileName: str) -> None:
         img = Image.open(fileName)
