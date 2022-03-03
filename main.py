@@ -23,9 +23,11 @@ def showPage(frame: Frame) -> None:
 
 def encode():
     start = time.time()
-    if (plainFileChooser.fileFullPath == "" and plainTextInput.getValue()
-            == "") or (plainFileChooser.fileFullPath != ""
-                       and plainTextInput.getValue() != ""):
+    if (plainFileChooser.fileFullPath == "" and plainTextInput.getValue() == ""
+        ) or (plainFileChooser.fileFullPath != ""
+              and plainTextInput.getValue() != "") or (
+                  plainFileChooser.fileFullPath != "" and
+                  (not os.path.exists(plainFileChooser.fileFullPath))):
         tkinter.messagebox.showerror(
             title="Error!",
             message="Please choose either plain file or enter plain text.",
@@ -37,7 +39,8 @@ def encode():
             title="Error!",
             message="Please enter secret key of size 16, 24 or 32 bytes.",
         )
-    elif coverImageChooser.fileFullPath == "":
+    elif coverImageChooser.fileFullPath == "" or (not os.path.exists(
+            coverImageChooser.fileFullPath)):
         tkinter.messagebox.showerror(
             title="Error!",
             message="Please choose cover image.",
@@ -79,7 +82,8 @@ def encode():
 
 def decode():
     start = time.time()
-    if stegoObjectChooser.fileFullPath == "":
+    if stegoObjectChooser.fileFullPath == "" or (not os.path.exists(
+            stegoObjectChooser.fileFullPath)):
         tkinter.messagebox.showerror(
             title="Error!",
             message="Please choose stego object.",
