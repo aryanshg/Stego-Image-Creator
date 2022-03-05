@@ -11,6 +11,8 @@ from components.show_label import ShowLabel
 from components.textfield import TextField
 from lsb import Lsb
 import time
+import cv2
+from skimage import metrics
 
 darkBgColor = "#222021"
 ligthBgColor = "#282828"
@@ -64,10 +66,21 @@ def encode():
         end = time.time()
 
         if lsb.errorMessage == "":
+            coverImgRef = cv2.imread(coverImageChooser.fileFullPath, 1)
+            stegoImgRef = cv2.imread(lsb.stegoFilePath, 1)
+
+            mse = metrics.mean_squared_error(coverImgRef, stegoImgRef)
+            psnr = metrics.peak_signal_noise_ratio(coverImgRef,
+                                                   stegoImgRef,
+                                                   data_range=None)
+
             answer = tkinter.messagebox.askokcancel(
                 title="Encoding successful",
                 message="Do you want to view stego object ?" +
-                "\n\nEmbedding Time: " + str(end - start) + " seconds",
+                "\n\nEmbedding Time: " + str(round(end - start, 2)) +
+                " seconds" + "\n\nMean Squared Error: " + str(round(mse, 2)) +
+                "\n\nPeak Signal to Noise Ratio: " + str(round(psnr, 2)) +
+                " dB",
             )
 
             if answer:
@@ -120,7 +133,7 @@ def decode():
                         title="Decoding successful",
                         message="Your Decoded Message is: " +
                         str(aes.plaintext, "utf-8").split(":-")[1] +
-                        "\n\nExtraction Time: " + str(end - start) +
+                        "\n\nExtraction Time: " + str(round(end - start, 2)) +
                         " seconds",
                     )
                 else:
@@ -140,7 +153,7 @@ def decode():
                     answer = tkinter.messagebox.askokcancel(
                         title="Decoding successful",
                         message="Do you want to view decoded message ?" +
-                        "\n\nExtraction Time: " + str(end - start) +
+                        "\n\nExtraction Time: " + str(round(end - start, 2)) +
                         " seconds",
                     )
 
@@ -153,7 +166,7 @@ def decode():
                 tkinter.messagebox.showerror(
                     title="Error!",
                     message=aes.errorMessage + "\n\nExtraction Time: " +
-                    str(end - start) + " seconds",
+                    str(round(end - start, 2)) + " seconds",
                 )
         else:
 
@@ -162,7 +175,7 @@ def decode():
             tkinter.messagebox.showerror(
                 title="Error!",
                 message=lsb.errorMessage + "\n\nExtraction Time: " +
-                str(end - start) + " seconds",
+                str(round(end - start, 2)) + " seconds",
             )
 
 
