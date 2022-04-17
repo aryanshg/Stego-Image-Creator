@@ -54,7 +54,7 @@ def encode():
         if plainFileChooser.fileFullPath != "":
             aes.encryptFile(plainFileChooser.fileFullPath)
         else:
-            hideText = "ipt:-" + plainTextInput.getValue()
+            hideText = "ipt$:-" + plainTextInput.getValue()
             aes.encrypt(bytes(hideText, "utf-8"))
 
         # -----
@@ -124,29 +124,30 @@ def decode():
             aes.decrypt(lsb.embededMessage)
 
             if aes.errorMessage == "":
-                if str(aes.plaintext)[2:].split(":-")[0].split(
-                        ";")[0] == "ipt":
+                if str(aes.plaintext)[2:].split("$:-")[0] == "ipt":
 
                     end = time.time()
 
                     tkinter.messagebox.showinfo(
                         title="Decoding successful",
                         message="Your Decoded Message is: " +
-                        str(aes.plaintext, "utf-8").split(":-")[1] +
+                        str(aes.plaintext, "utf-8").split("$:-")[1] +
                         "\n\nExtraction Time: " + str(round(end - start, 2)) +
                         " seconds",
                     )
                 else:
-                    originalFileName = str(
-                        aes.plaintext)[2:].split(":-")[0].split(";")[1]
+                    originalFileName = str(aes.plaintext)[2:].split("$:-")[1]
+
                     originalFileExtension = str(
-                        aes.plaintext)[2:].split(":-")[0].split(";")[2]
+                        aes.plaintext)[2:].split("$:-")[2]
+
                     newFilePath = "/".join(
                         stegoObjectChooser.fileFullPath.split("/")[0:-1]
                     ) + "/" + originalFileName + "-dec" + originalFileExtension
 
                     with open(newFilePath, 'wb') as f1:
-                        f1.write(aes.plaintext[aes.plaintext.find(b':-') + 2:])
+                        f1.write(aes.plaintext[aes.plaintext.rfind(b'$:-') +
+                                               3:])
 
                     end = time.time()
 

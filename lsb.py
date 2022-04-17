@@ -19,6 +19,7 @@ class Lsb:
                 width, height = img.size
                 index = 0
 
+                # 6 is no of character used to seperate total msg len, msg, and extra string i.e, "$:-".
                 i = messageLength + 6 + len(str(messageLength))
                 while i:
                     if i % 3 == 0 and i % 8 == 0:
@@ -133,7 +134,12 @@ class Lsb:
 
                         for i in hiddenBitsList:
                             self.embededMessage += pack('B', int(i, 2))
-
+                    '''
+                        here we are find $:- characters so that we can get all substring before it, which represent cipher msg len
+                        we find $:- characters at 24 binary message length ---- that means cipher msg len is of ----- 3 digits (100 min len - 999 max len)
+                        so by default it is assume that,
+                        binary message len is  not more than 240 ---- that means cipher msg len is of ----- 30 digits (3 nonillion min len - 4 nonillion -1 max len)
+                    '''
                     if self.isSecretMsgExist or (
                             len(hiddenBits) > 240
                             and type(self.messageLength) != int):
