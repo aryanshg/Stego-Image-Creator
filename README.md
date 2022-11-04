@@ -8,8 +8,8 @@
 
   1. tk
   2. pillow
-  3. pycrypto
-  4. openCV
+  3. pycryptodome
+  4. opencv-python
   5. scikit-image
 
 - executed this command 'python main.py' from terminal to run app
