@@ -4,8 +4,7 @@
 
 - install python 3.0 or above link - https://www.python.org/downloads/
 - fork this project from github
-- install these python modules:
-
+- install these python modules using this command: pip install -r requirements.txt
   1. tk
   2. pillow
   3. pycryptodome
