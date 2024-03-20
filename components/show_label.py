@@ -1,4 +1,5 @@
 from tkinter import Label, PhotoImage, Tk
+import utils
 
 
 class ShowLabel:
@@ -19,7 +20,7 @@ class ShowLabel:
         marginY=0,
     ):
         if image != "":
-            self.labelImg = PhotoImage(file=f"assets/images/{image}")
+            self.labelImg = PhotoImage(file=utils.resource_path(f"assets/images/{image}"))
             self.label = Label(
                 window,
                 image=self.labelImg,

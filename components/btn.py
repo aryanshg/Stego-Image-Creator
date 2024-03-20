@@ -1,4 +1,5 @@
 from tkinter import Button, PhotoImage, Tk
+import utils
 
 
 class Btn:
@@ -16,7 +17,7 @@ class Btn:
         marginX=0,
         marginY=0,
     ):
-        self.btnImg = PhotoImage(file=f"assets/images/{fileName}")
+        self.btnImg = PhotoImage(file=utils.resource_path(f"assets/images/{fileName}"))
         if height != 0:
             self.btn = Button(
                 window,
