@@ -12,6 +12,7 @@ from components.textfield import TextField
 from lsb import Lsb
 import time
 import cv2
+import utils
 from skimage import metrics
 
 darkBgColor = "#222021"
@@ -182,7 +183,7 @@ def decode():
 
 root = Tk()
 root.title("Stego Image Creator | Project")
-root.iconbitmap("assets/images/favicon.ico")
+root.iconbitmap(utils.resource_path("assets/images/favicon.ico"))
 root.geometry("490x625")
 root.minsize(490, 625)
 root.configure(bg=darkBgColor)
